@@ -1,0 +1,238 @@
+<!--
+  TICKET DETAIL PAGE - ticket-detail.html
+  ========================================
+  This page displays a single ticket's full details.
+  
+  HOW IT WORKS:
+  - The ticket ID is passed via URL parameter: ticket-detail.html?id=123
+  - JavaScript reads the ID and fetches that specific ticket from the API
+  - Full ticket information is displayed
+  
+  REQUIRES: User must be logged in (has valid token in localStorage)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Details - Ticketing System</title>
+    
+    <!-- Link to our CSS file for styling -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Additional styles specific to this page -->
+    <style>
+        /* Ticket detail card styling */
+        .ticket-detail {
+            background: var(--card-background);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-xl);
+        }
+        
+        /* Ticket header with title and badges */
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-lg);
+            padding-bottom: var(--spacing-lg);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .ticket-header h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+        
+        /* Metadata section (status, priority, date) */
+        .ticket-metadata {
+            display: flex;
+            gap: var(--spacing-lg);
+            flex-wrap: wrap;
+            margin-bottom: var(--spacing-lg);
+        }
+        
+        .metadata-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-xs);
+        }
+        
+        .metadata-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        
+        /* Description section */
+        .ticket-description {
+            background: var(--background-color);
+            border-radius: var(--border-radius-sm);
+            padding: var(--spacing-lg);
+            margin-bottom: var(--spacing-lg);
+            line-height: 1.8;
+            white-space: pre-wrap;
+        }
+        
+        /* Action buttons */
+        .ticket-actions {
+            display: flex;
+            gap: var(--spacing-md);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Clickable badge - looks like a badge but can be clicked to edit */
+        .badge-editable {
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        
+        .badge-editable:hover {
+            opacity: 0.8;
+            transform: scale(1.05);
+        }
+        
+        /* Small edit icon hint */
+        .badge-editable::after {
+            content: "✎";
+            font-size: 0.6rem;
+            margin-left: 4px;
+            opacity: 0.7;
+        }
+        
+        /* Inline dropdown that replaces the badge when editing */
+        .inline-select {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            background: var(--card-background);
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .inline-select:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.3);
+        }
+        
+        /* Update message - small toast-like notification */
+        .update-toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: var(--border-radius-sm);
+            font-size: 0.875rem;
+            box-shadow: var(--shadow-hover);
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .update-toast.success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .update-toast.error {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main container -->
+    <div class="container">
+        
+        <!-- Navigation bar -->
+        <nav class="nav">
+            <a href="tickets.html" class="nav-brand">Ticketing System</a>
+            <div class="nav-links">
+                <a href="tickets.html">My Tickets</a>
+                <a href="create-ticket.html">New Ticket</a>
+                <a href="#" id="logout-link">Logout</a>
+            </div>
+        </nav>
+        
+        <!-- Back link -->
+        <p class="mb-md">
+            <a href="tickets.html" style="color: var(--primary-color); text-decoration: none;">
+                ← Back to Tickets
+            </a>
+        </p>
+        
+        <!-- Loading state -->
+        <div id="loading-state" class="card text-center">
+            <span class="loading"></span>
+            <p>Loading ticket...</p>
+        </div>
+        
+        <!-- Error state (hidden by default) -->
+        <div id="error-state" class="card hidden">
+            <p class="text-center" style="color: var(--danger-color);">
+                <strong>Error:</strong> <span id="error-message">Ticket not found</span>
+            </p>
+            <p class="text-center">
+                <a href="tickets.html" class="btn btn-secondary">Back to Tickets</a>
+            </p>
+        </div>
+        
+        <!-- Ticket detail (hidden until loaded) -->
+        <div id="ticket-detail" class="card ticket-detail hidden">
+            
+            <!-- Ticket header with title -->
+            <div class="ticket-header">
+                <h1 id="ticket-title">Loading...</h1>
+            </div>
+            
+            <!-- Ticket metadata -->
+            <div class="ticket-metadata">
+                <div class="metadata-item">
+                    <span class="metadata-label">Ticket ID</span>
+                    <span id="ticket-id">-</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Status</span>
+                    <span id="ticket-status-editable" class="badge badge-editable" title="Click to change status">Open</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Priority</span>
+                    <span id="ticket-priority-editable" class="badge badge-editable" title="Click to change priority">Medium</span>
+                </div>
+                <div class="metadata-item">
+                    <span class="metadata-label">Created</span>
+                    <span id="ticket-created">-</span>
+                </div>
+            </div>
+            
+            <!-- Description section -->
+            <h2>Description</h2>
+            <div id="ticket-description" class="ticket-description">
+                Loading description...
+            </div>
+            
+            <!-- Action buttons -->
+            <div class="ticket-actions">
+                <a href="tickets.html" class="btn btn-secondary">← Back to Tickets</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for this page -->
+    <script src="js/ticket-detail.js"></script>
+</body>
+</html>

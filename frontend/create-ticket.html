@@ -1,0 +1,135 @@
+<!--
+  CREATE TICKET PAGE - create-ticket.html
+  =======================================
+  This page allows users to create new support tickets.
+  
+  REQUIRES: User must be logged in (has valid token in localStorage)
+  
+  STRUCTURE:
+  - Navigation bar
+  - Form with fields: title, description, status, priority
+  - Submit button sends data to the API
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Ticket - Ticketing System</title>
+    
+    <!-- Link to our CSS file for styling -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main container - centers content and limits width -->
+    <div class="container">
+        
+        <!--
+          NAVIGATION BAR
+          - Same nav as tickets page for consistency
+        -->
+        <nav class="nav">
+            <a href="tickets.html" class="nav-brand">Ticketing System</a>
+            <div class="nav-links">
+                <a href="tickets.html">My Tickets</a>
+                <a href="create-ticket.html">New Ticket</a>
+                <a href="#" id="logout-link">Logout</a>
+            </div>
+        </nav>
+        
+        <!-- Card contains the form -->
+        <div class="card">
+            <h1>Create New Ticket</h1>
+            <p class="text-center">Fill out the form below to submit a new ticket</p>
+            
+            <!--
+              TICKET FORM
+              - id="ticket-form" lets JavaScript find this form
+              - Each input has "name" attribute matching the API fields
+            -->
+            <form id="ticket-form">
+                
+                <!--
+                  TITLE FIELD
+                  - Short summary of the issue
+                  - type="text" for single line input
+                -->
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input 
+                        type="text" 
+                        id="title" 
+                        name="title"
+                        placeholder="Brief description of the issue" 
+                        required
+                    >
+                </div>
+                
+                <!--
+                  DESCRIPTION FIELD
+                  - Detailed explanation of the issue
+                  - <textarea> allows multiple lines
+                -->
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea 
+                        id="description" 
+                        name="description"
+                        placeholder="Provide detailed information about your issue..." 
+                        required
+                    ></textarea>
+                </div>
+                
+                <!--
+                  STATUS FIELD
+                  - Dropdown to select ticket status
+                  - Default is "open" for new tickets
+                  - "name" attribute must match API field name
+                -->
+                <div class="form-group">
+                    <label for="status">Status</label>
+                    <select id="status" name="status">
+                        <option value="open" selected>Open</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                
+                <!--
+                  PRIORITY FIELD
+                  - Dropdown to set urgency level
+                  - Default is "medium"
+                -->
+                <div class="form-group">
+                    <label for="priority">Priority</label>
+                    <select id="priority" name="priority">
+                        <option value="low">Low - Can wait</option>
+                        <option value="medium" selected>Medium - Normal priority</option>
+                        <option value="high">High - Urgent</option>
+                    </select>
+                </div>
+                
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary btn-block">
+                    Create Ticket
+                </button>
+            </form>
+            
+            <!--
+              MESSAGE AREA
+              - Shows success or error messages after form submission
+              - Updated by JavaScript
+            -->
+            <p id="message" class="message mt-md"></p>
+            
+            <!-- Link back to tickets list -->
+            <p class="text-center mt-md">
+                <a href="tickets.html" class="btn btn-secondary">← Back to Tickets</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- JavaScript file - handles form submission -->
+    <script src="js/create-ticket.js"></script>
+</body>
+</html>

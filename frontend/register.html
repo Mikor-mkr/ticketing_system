@@ -1,0 +1,198 @@
+<!--
+  REGISTER PAGE - register.html
+  =============================
+  This page allows new users to create an account.
+  
+  STRUCTURE:
+  - Same layout as login page for consistency
+  - Form collects username and password
+  - After registration, redirects to login page
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Ticketing System</title>
+    
+    <!-- Link to our CSS file for styling -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main container - centers content and limits width -->
+    <div class="container">
+        
+        <!-- Card creates a white box with shadow -->
+        <div class="card">
+            <h1>Create Account</h1>
+            <p class="text-center">Sign up to start using the ticketing system</p>
+            
+            <!--
+              REGISTRATION FORM
+              - Similar to login form but creates a new user
+            -->
+            <form id="register-form">
+                
+                <!-- Username field -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username"
+                        placeholder="Choose a username" 
+                        required
+                        minlength="3"
+                        autocomplete="username"
+                    >
+                </div>
+                
+                <!-- Password field -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        placeholder="Choose a password" 
+                        required
+                        minlength="4"
+                        autocomplete="new-password"
+                    >
+                </div>
+                
+                <!-- Confirm Password field -->
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="confirm-password" 
+                        name="confirmPassword"
+                        placeholder="Re-enter your password" 
+                        required
+                        autocomplete="new-password"
+                    >
+                </div>
+                
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary btn-block">
+                    Create Account
+                </button>
+            </form>
+            
+            <!-- Message area for feedback -->
+            <p id="message" class="message mt-md"></p>
+            
+            <!-- Link to login page -->
+            <p class="text-center mt-md">
+                Already have an account? 
+                <a href="index.html">Log in here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Inline JavaScript for simplicity (you could move this to js/register.js) -->
+    <script>
+        /**
+         * REGISTRATION HANDLER
+         * ====================
+         * This script handles user registration.
+         * 
+         * WHAT IT DOES:
+         * 1. Validates passwords match
+         * 2. Sends registration request to API
+         * 3. Redirects to login on success
+         */
+        
+        const API_BASE_URL = "http://localhost:8000";
+        const registerForm = document.getElementById("register-form");
+        const messageElement = document.getElementById("message");
+        
+        /**
+         * Display a message to the user
+         */
+        function showMessage(text, type = "info") {
+            messageElement.textContent = text;
+            messageElement.classList.remove("message-success", "message-error", "message-info", "hidden");
+            messageElement.classList.add(`message-${type}`);
+        }
+        
+        /**
+         * Handle registration form submission
+         */
+        async function handleRegister(event) {
+            event.preventDefault();
+            
+            // Get form values
+            const username = registerForm.username.value.trim();
+            const password = registerForm.password.value;
+            const confirmPassword = registerForm.confirmPassword.value;
+            
+            // Validate inputs
+            if (!username || !password) {
+                showMessage("Please fill in all fields", "error");
+                return;
+            }
+            
+            if (username.length < 3) {
+                showMessage("Username must be at least 3 characters", "error");
+                return;
+            }
+            
+            if (password.length < 4) {
+                showMessage("Password must be at least 4 characters", "error");
+                return;
+            }
+            
+            // Check passwords match
+            if (password !== confirmPassword) {
+                showMessage("Passwords do not match", "error");
+                return;
+            }
+            
+            // Show loading state
+            showMessage("Creating account...", "info");
+            
+            try {
+                // Send registration request
+                const response = await fetch(`${API_BASE_URL}/auth/register`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        password: password
+                    })
+                });
+                
+                // Handle errors
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    if (response.status === 400) {
+                        showMessage(errorData.detail || "Username already exists", "error");
+                    } else {
+                        showMessage(`Registration failed: ${response.status}`, "error");
+                    }
+                    return;
+                }
+                
+                // Success!
+                showMessage("Account created! Redirecting to login...", "success");
+                
+                // Redirect to login page
+                setTimeout(() => {
+                    window.location.href = "index.html";
+                }, 1500);
+                
+            } catch (error) {
+                console.error("Registration error:", error);
+                showMessage("Connection error. Is the server running?", "error");
+            }
+        }
+        
+        // Listen for form submission
+        registerForm.addEventListener("submit", handleRegister);
+    </script>
+</body>
+</html>

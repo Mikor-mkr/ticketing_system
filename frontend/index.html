@@ -1,17 +1,89 @@
+<!--
+  LOGIN PAGE - index.html
+  =======================
+  This is the entry point of our ticketing application.
+  Users must log in before they can view or create tickets.
+  
+  STRUCTURE:
+  - Container div centers the content
+  - Card div creates a white box with shadow
+  - Form collects username and password
+  - Message paragraph shows success/error feedback
+-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Frontend</title>
-    <link rel="stylesheet" href="./styles.css">
+    <title>Login - Ticketing System</title>
+    
+    <!-- Link to our CSS file for styling -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Frontend Connected to Backend</h1>
-    <div id="app">
-        <button onclick="testAPI()">Test API Connection</button>
-        <div id="result"></div>
+    <!-- Main container - centers content and limits width -->
+    <div class="container">
+        
+        <!-- Card creates a white box with shadow -->
+        <div class="card">
+            <h1>Ticketing System</h1>
+            <p class="text-center">Please log in to continue</p>
+            
+            <!--
+              LOGIN FORM
+              - id="login-form" lets JavaScript find this form
+              - Each input has a "name" attribute for easy access in JS
+            -->
+            <form id="login-form">
+                
+                <!-- Username field -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username"
+                        placeholder="Enter your username" 
+                        required
+                        autocomplete="username"
+                    >
+                </div>
+                
+                <!-- Password field -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        placeholder="Enter your password" 
+                        required
+                        autocomplete="current-password"
+                    >
+                </div>
+                
+                <!-- Submit button - btn-block makes it full width -->
+                <button type="submit" class="btn btn-primary btn-block">
+                    Log In
+                </button>
+            </form>
+            
+            <!--
+              MESSAGE AREA
+              - JavaScript will update this to show success/error messages
+              - Starts empty but hidden class can be removed to show it
+            -->
+            <p id="message" class="message mt-md"></p>
+            
+            <!-- Link to registration page (if you add one) -->
+            <p class="text-center mt-md">
+                Don't have an account? 
+                <a href="register.html">Register here</a>
+            </p>
+        </div>
     </div>
-    <script src="./script.js"></script>
+
+    <!-- JavaScript file - handles form submission and API calls -->
+    <script src="js/auth.js"></script>
 </body>
 </html>

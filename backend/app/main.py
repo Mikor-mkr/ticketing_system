@@ -1,7 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
+from app.routers import tickets, auth
+from app.models import user, ticket 
 app = FastAPI()
+app.include_router(tickets.router)
+app.include_router(auth.router)
 
 # CORS configuration
 app.add_middleware(

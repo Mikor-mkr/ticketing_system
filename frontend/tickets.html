@@ -1,0 +1,84 @@
+<!--
+  TICKETS LIST PAGE - tickets.html
+  =================================
+  This page displays all tickets in the system.
+  Users can view tickets and navigate to create new ones.
+  
+  REQUIRES: User must be logged in (has valid token in localStorage)
+  
+  STRUCTURE:
+  - Navigation bar with links
+  - Heading and action button
+  - Tickets list container (populated by JavaScript)
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Tickets - Ticketing System</title>
+    
+    <!-- Link to our CSS file for styling -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main container - centers content and limits width -->
+    <div class="container">
+        
+        <!--
+          NAVIGATION BAR
+          - Brand/logo on the left
+          - Links on the right
+        -->
+        <nav class="nav">
+            <a href="tickets.html" class="nav-brand">Ticketing System</a>
+            <div class="nav-links">
+                <a href="tickets.html">My Tickets</a>
+                <a href="create-ticket.html">New Ticket</a>
+                <a href="#" id="logout-link">Logout</a>
+            </div>
+        </nav>
+        
+        <!-- Page header with title and action button -->
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h1 style="margin: 0;">My Tickets</h1>
+                <a href="create-ticket.html" class="btn btn-primary">+ New Ticket</a>
+            </div>
+            
+            <!--
+              TICKETS LIST
+              - This <ul> element is where JavaScript will insert ticket items
+              - The "tickets-list" class applies our list styling
+              - The "id" lets JavaScript find and update this element
+            -->
+            <ul id="tickets-list" class="tickets-list">
+                <!-- Tickets will be loaded here by JavaScript -->
+                <!-- Each ticket becomes a <li class="ticket-item"> element -->
+            </ul>
+            
+            <!--
+              EMPTY STATE
+              - Shown when there are no tickets
+              - Initially visible, hidden by JavaScript when tickets load
+            -->
+            <div id="empty-state" class="empty-state hidden">
+                <p>No tickets yet!</p>
+                <a href="create-ticket.html" class="btn btn-secondary">Create your first ticket</a>
+            </div>
+            
+            <!--
+              LOADING STATE
+              - Shown while tickets are being fetched from the API
+            -->
+            <div id="loading-state" class="text-center">
+                <span class="loading"></span>
+                <p>Loading tickets...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript file - handles fetching and displaying tickets -->
+    <script src="js/tickets.js"></script>
+</body>
+</html>
