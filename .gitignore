@@ -1,9 +1,46 @@
-/.env.example
-# Python
+# ===========================================
+# GITIGNORE - Ticketing System
+# ===========================================
+# This file tells Git which files/folders to ignore.
+# Ignored files won't be tracked or committed.
+#
+# WHY IGNORE FILES?
+# - Security: Don't commit passwords, API keys, secrets
+# - Cleanliness: Don't commit generated files (cache, builds)
+# - Efficiency: Don't commit large dependencies (node_modules, venv)
+# ===========================================
+
+
+# ===========================================
+# ENVIRONMENT & SECRETS
+# ===========================================
+# NEVER commit these - they contain sensitive data!
+
+# Environment files (contain passwords, API keys, secrets)
+.env
+.env.local
+.env.development
+.env.production
+.env.staging
+.env*.local
+
+# Keep example file (shows what variables are needed)
+!.env.example
+
+
+# ===========================================
+# PYTHON
+# ===========================================
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
+
+# C extensions
 *.so
+
+# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -23,37 +60,162 @@ share/python-wheels/
 *.egg
 MANIFEST
 
-# Virtual environments
-.env
-env/
-backend/venv/
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+pytest_cache/
+
+# Type checkers
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pytype/
+.pyre/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+
+# ===========================================
+# VIRTUAL ENVIRONMENTS
+# ===========================================
+# Don't commit dependencies - they're listed in requirements.txt
+
+.venv/
+venv/
 ENV/
+env/
 env.bak/
-backend/venv.bak/
+venv.bak/
+backend/venv/
+backend/.venv/
 
-# FastAPI/Uvicorn
-.env.local
-.env.production
 
-# IDE
+# ===========================================
+# DATABASE
+# ===========================================
+# Don't commit local database files
+
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+backend/*.sqlite3
+
+
+# ===========================================
+# IDE & EDITORS
+# ===========================================
+# Each developer has their own IDE settings
+
+# VS Code
 .vscode/
+*.code-workspace
+
+# JetBrains (PyCharm, WebStorm, etc.)
 .idea/
+*.iml
+*.iws
+*.ipr
+
+# Vim
 *.swp
 *.swo
 *~
+.*.swp
 
-# OS
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Emacs
+*~
+\#*\#
+.#*
+
+
+# ===========================================
+# OPERATING SYSTEM
+# ===========================================
+# OS-generated files that shouldn't be tracked
+
+# macOS
 .DS_Store
 .DS_Store?
+.AppleDouble
+.LSOverride
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
-Thumbs.db
 
-# Logs
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+
+# ===========================================
+# LOGS & TEMPORARY FILES
+# ===========================================
+
 *.log
 logs/
+*.tmp
+*.temp
+*.bak
+*.backup
 
-# Node modules (if you add any frontend build tools later)
+
+# ===========================================
+# NODE.JS (if adding frontend build tools)
+# ===========================================
+
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+
+# ===========================================
+# BUILD OUTPUTS
+# ===========================================
+
+# General build directories
+build/
+dist/
+out/
+
+# Static file collection (Django/Flask)
+staticfiles/
+static_collected/
