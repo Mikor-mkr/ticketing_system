@@ -49,6 +49,13 @@ const ticketDescription = document.getElementById("ticket-description");
 const statusBadge = document.getElementById("ticket-status-editable");
 const priorityBadge = document.getElementById("ticket-priority-editable");
 
+// Delete modal elements
+const deleteBtn = document.getElementById("delete-ticket-btn");
+const deleteModal = document.getElementById("delete-modal");
+const cancelDeleteBtn = document.getElementById("cancel-delete-btn");
+const confirmDeleteBtn = document.getElementById("confirm-delete-btn");
+const modalBackdrop = deleteModal ? deleteModal.querySelector(".modal-backdrop") : null;
+
 
 // ===========================================
 // HELPER FUNCTIONS
@@ -605,3 +612,161 @@ async function updateTicketField(field, newValue, select) {
 
 // Load the ticket when the page loads
 loadTicket();
+
+
+// ===========================================
+// DELETE TICKET FUNCTIONALITY
+// ===========================================
+
+/**
+ * Show the delete confirmation modal
+ * 
+ * WHAT THIS DOES:
+ * Shows a modal dialog asking the user to confirm deletion.
+ * This prevents accidental deletions - a common UX best practice.
+ * 
+ * KEY CONCEPT: CONFIRMATION DIALOGS
+ * For destructive actions (delete, remove, etc.), always ask
+ * the user to confirm. This gives them a chance to cancel
+ * if they clicked by mistake.
+ */
+function showDeleteModal() {
+    if (deleteModal) {
+        deleteModal.classList.remove("hidden");
+    }
+}
+
+
+/**
+ * Hide the delete confirmation modal
+ */
+function hideDeleteModal() {
+    if (deleteModal) {
+        deleteModal.classList.add("hidden");
+    }
+}
+
+
+/**
+ * Delete the current ticket
+ * 
+ * This function:
+ * 1. Sends a DELETE request to the API
+ * 2. Handles success - redirects to tickets list
+ * 3. Handles errors - shows appropriate message
+ * 
+ * KEY CONCEPT: HTTP DELETE METHOD
+ * DELETE is the HTTP method for removing resources.
+ * Unlike POST/PUT, it typically doesn't have a request body.
+ * A successful delete usually returns 204 No Content.
+ */
+async function deleteTicket() {
+    const token = localStorage.getItem("access_token");
+    
+    if (!token) {
+        showToast("Session expired. Please log in again.", "error");
+        window.location.href = "index.html";
+        return;
+    }
+    
+    if (!currentTicket) {
+        showToast("No ticket loaded", "error");
+        return;
+    }
+    
+    // Disable the confirm button to prevent double-clicks
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.disabled = true;
+        confirmDeleteBtn.textContent = "Deleting...";
+    }
+    
+    try {
+        // Send DELETE request to the API
+        // Note: DELETE requests typically don't have a body
+        const response = await fetch(`${API_BASE_URL}/api/tickets/${currentTicket.id}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        
+        // Handle unauthorized response
+        if (response.status === 401) {
+            localStorage.removeItem("access_token");
+            showToast("Session expired", "error");
+            window.location.href = "index.html";
+            return;
+        }
+        
+        // Handle forbidden/not found (user doesn't own the ticket)
+        if (response.status === 404) {
+            hideDeleteModal();
+            showToast("You can only delete your own tickets", "error");
+            // Re-enable button
+            if (confirmDeleteBtn) {
+                confirmDeleteBtn.disabled = false;
+                confirmDeleteBtn.textContent = "Delete";
+            }
+            return;
+        }
+        
+        // Handle other errors
+        if (!response.ok && response.status !== 204) {
+            throw new Error(`Failed to delete: ${response.status}`);
+        }
+        
+        // Success! 
+        // 204 No Content is the typical successful DELETE response
+        hideDeleteModal();
+        showToast("Ticket deleted successfully!", "success");
+        
+        // Redirect to tickets list after a short delay
+        // This gives the user time to see the success message
+        setTimeout(() => {
+            window.location.href = "tickets.html";
+        }, 1500);
+        
+    } catch (error) {
+        console.error("Error deleting ticket:", error);
+        hideDeleteModal();
+        showToast("Failed to delete ticket. Please try again.", "error");
+        
+        // Re-enable button
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.disabled = false;
+            confirmDeleteBtn.textContent = "Delete";
+        }
+    }
+}
+
+
+// ===========================================
+// DELETE EVENT LISTENERS
+// ===========================================
+
+// Show modal when delete button is clicked
+if (deleteBtn) {
+    deleteBtn.addEventListener("click", showDeleteModal);
+}
+
+// Hide modal when cancel is clicked
+if (cancelDeleteBtn) {
+    cancelDeleteBtn.addEventListener("click", hideDeleteModal);
+}
+
+// Delete when confirm is clicked
+if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener("click", deleteTicket);
+}
+
+// Hide modal when clicking the backdrop (outside the modal content)
+if (modalBackdrop) {
+    modalBackdrop.addEventListener("click", hideDeleteModal);
+}
+
+// Hide modal when pressing Escape key
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && deleteModal && !deleteModal.classList.contains("hidden")) {
+        hideDeleteModal();
+    }
+});
